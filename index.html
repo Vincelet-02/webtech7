@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grey Sloan Memorial Hospital</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e8f1f8;
+            margin: 0;
+        }
+        header {
+            background: #17365d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 480px;
+            margin: 25px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #bbb;
+        }
+        h2 {
+            text-align: center;
+            color: #17365d;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background: #168aad;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #126782;
+        }
+        #result {
+            display: none;
+            background: #e1f5e9;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #17365d;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Grey Sloan Memorial Hospital</h1>
+    <p>Medical Appointment Booking System</p>
+</header>
+<div class="container">
+    <h2>Book Your Appointment</h2>
+    <form id="appointmentForm">
+        <label>Patient Name</label>
+        <input type="text" id="name" required>
+        <label>Age</label>
+        <input type="number" id="age" min="1" max="120" required>
+        <label>Phone Number</label>
+        <input type="tel" id="phone"
+               pattern="[0-9]{10}"
+               placeholder="10-digit number" required>
+        <label>Department</label>
+        <select id="department" required>
+            <option value="">Choose Department</option>
+            <option>General Surgery</option>
+            <option>Neurosurgery</option>
+            <option>Cardiology</option>
+            <option>Trauma Surgery</option>
+            <option>Pediatric Surgery</option>
+            <option>Orthopedic Surgery</option>
+            <option>Plastic Surgery</option>
+            <option>Cardiothoracic Surgery</option>
+            <option>Obstetrics and Gynecology</option>
+            <option>Urology</option>
+            <option>Oncology</option>
+            <option>Emergency Medicine</option>
+        </select>
+        <label>Doctor</label>
+        <select id="doctor" required>
+            <option value="">Choose Department First</option>
+        </select>
+        <label>Appointment Date</label>
+        <input type="date" id="date" required>
+        <label>Appointment Time</label>
+        <select id="time" required>
+            <option value="">Choose Time</option>
+            <option>09:00 AM</option>
+            <option>10:00 AM</option>
+            <option>11:00 AM</option>
+            <option>12:00 PM</option>
+            <option>02:00 PM</option>
+            <option>03:00 PM</option>
+            <option>04:00 PM</option>
+        </select>
+        <label>Reason for Visit</label>
+        <textarea id="reason" rows="3"
+                  placeholder="Describe your symptoms"
+                  required></textarea>
+        <button type="submit">Book Appointment</button>
+        <button type="reset">Clear Form</button>
+    </form>
+    <div id="result"></div>
+</div>
+<footer>
+    Grey Sloan Memorial Hospital | Web Technology Project
+</footer>
+<script>
+$(document).ready(function() {
+    let today = new Date();
+    let minDate = today.getFullYear() + "-" +
+        String(today.getMonth() + 1).padStart(2, "0") + "-" +
+        String(today.getDate()).padStart(2, "0");
+    $("#date").attr("min", minDate);
+    const doctors = {
+        "General Surgery": [
+            "Dr. Meredith Grey",
+            "Dr. Miranda Bailey",
+            "Dr. Richard Webber",
+            "Dr. Jo Wilson"
+        ],
+        "Neurosurgery": [
+            "Dr. Derek Shepherd",
+            "Dr. Amelia Shepherd"
+        ],
+        "Cardiology": [
+            "Dr. Cristina Yang",
+            "Dr. Maggie Pierce",
+            "Dr. Winston Ndugu"
+        ],
+        "Trauma Surgery": [
+            "Dr. Owen Hunt",
+            "Dr. April Kepner"
+        ],
+        "Pediatric Surgery": [
+            "Dr. Alex Karev",
+            "Dr. Arizona Robbins"
+        ],
+        "Orthopedic Surgery": [
+            "Dr. Callie Torres",
+            "Dr. Atticus Lincoln"
+        ],
+        "Plastic Surgery": [
+            "Dr. Jackson Avery",
+            "Dr. Mark Sloan"
+        ],
+        "Cardiothoracic Surgery": [
+            "Dr. Cristina Yang",
+            "Dr. Teddy Altman"
+        ],
+        "Obstetrics and Gynecology": [
+            "Dr. Addison Montgomery",
+            "Dr. Jo Wilson"
+        ],
+        "Urology": [
+            "Dr. Catherine Fox",
+            "Dr. Winston Ndugu"
+        ],
+        "Oncology": [
+            "Dr. Maggie Pierce",
+            "Dr. Nick Marsh"
+        ],
+        "Emergency Medicine": [
+            "Dr. Owen Hunt",
+            "Dr. Ben Warren",
+            "Dr. Levi Schmitt"
+        ]
+    };
+    $("#department").change(function() {
+        let department = $(this).val();
+        let doctorSelect = $("#doctor");
+        doctorSelect.empty();
+        doctorSelect.append(
+            $("<option>").val("").text("Choose Doctor")
+        );
+        if (doctors[department]) {
+            doctors[department].forEach(function(doctor) {
+                doctorSelect.append(
+                    $("<option>").val(doctor).text(doctor)
+                );
+            });
+        }
+    });
+    $("#appointmentForm").submit(function(e) {
+        e.preventDefault();
+        let name = $("#name").val().trim();
+        let age = Number($("#age").val());
+        let phone = $("#phone").val();
+        let department = $("#department").val();
+        let doctor = $("#doctor").val();
+        let date = $("#date").val();
+        let time = $("#time").val();
+        let reason = $("#reason").val().trim();
+        if (age < 1 || age > 120) {
+            alert("Please enter a valid age.");
+            return;
+        }
+        if (date < minDate) {
+            alert("Choose today or a future date.");
+            return;
+        }
+        function safe(value) {
+            return $("<div>").text(value).html();
+        }
+        $("#result").html(
+            "<h3>Appointment Confirmation</h3>" +
+            "<p><b>Patient:</b> " + safe(name) + "</p>" +
+            "<p><b>Age:</b> " + age + "</p>" +
+            "<p><b>Phone:</b> " + safe(phone) + "</p>" +
+            "<p><b>Department:</b> " + safe(department) + "</p>" +
+            "<p><b>Doctor:</b> " + safe(doctor) + "</p>" +
+            "<p><b>Date:</b> " + safe(date) + "</p>" +
+            "<p><b>Time:</b> " + safe(time) + "</p>" +
+            "<p><b>Reason:</b> " + safe(reason) + "</p>" +
+            "<h4>Status: Appointment request submitted!</h4>"
+        ).slideDown();
+    });
+    $("#appointmentForm").on("reset", function() {
+        $("#result").slideUp().empty();
+        setTimeout(function() {
+            $("#doctor").empty().append(
+                $("<option>").val("").text("Choose Department First")
+            );
+        }, 0);
+    });
+
+});
+</script>
+</body>
+</html>
